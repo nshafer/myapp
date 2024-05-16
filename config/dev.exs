@@ -23,7 +23,7 @@ config :myapp, MyappWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "Cwn8jJ/xhUdO+g8JqakOUV1UlLfk4Kx1LgZoSWqZo9aB2asWZClvm0gLzur5SghV",
+  secret_key_base: "0471t+8zpQqW57Y5v3xD9JFnk5WqNH2iF0kMVpwSKwOmqcU1EGR4WHppwWk8nMvz",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:myapp, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:myapp, ~w(--watch)]}
@@ -75,8 +75,11 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# Include HEEx debug annotations as HTML comments in rendered markup
-config :phoenix_live_view, :debug_heex_annotations, true
+config :phoenix_live_view,
+  # Include HEEx debug annotations as HTML comments in rendered markup
+  debug_heex_annotations: true,
+  # Enable helpful, but potentially expensive runtime checks
+  enable_expensive_runtime_checks: true
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false

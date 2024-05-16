@@ -20,7 +20,7 @@ config :myapp, MyappWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Myapp.PubSub,
-  live_view: [signing_salt: "s5EXsbqJ"]
+  live_view: [signing_salt: "Lc/FoPSK"]
 
 # Configures the mailer
 #
