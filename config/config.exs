@@ -20,7 +20,7 @@ config :myapp, MyappWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Myapp.PubSub,
-  live_view: [signing_salt: "Lc/FoPSK"]
+  live_view: [signing_salt: "q2HGLPTw"]
 
 # Configures the mailer
 #
@@ -43,7 +43,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.0",
+  version: "3.4.3",
   myapp: [
     args: ~w(
       --config=tailwind.config.js
