@@ -15,5 +15,15 @@ defmodule Myapp.BookTag do
     book_tag
     |> cast(attrs, [:book_id, :tag_id])
     |> validate_required([:book_id, :tag_id])
+    |> foreign_key_constraint(:book_id)
+    |> foreign_key_constraint(:tag_id)
+  end
+
+  def assoc_changeset(book_tag, attrs) do
+    book_tag
+    |> cast(attrs, [:book_id, :tag_id])
+    |> validate_required([:tag_id])
+    |> foreign_key_constraint(:book_id)
+    |> foreign_key_constraint(:tag_id)
   end
 end

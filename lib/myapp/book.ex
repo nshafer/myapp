@@ -14,10 +14,10 @@ defmodule Myapp.Book do
   end
 
   @doc false
-  def changeset(place, attrs) do
-    place
+  def changeset(book, attrs) do
+    book
     |> cast(attrs, [:name])
     |> validate_required([:name])
-    |> cast_assoc(:book_tags)
+    |> cast_assoc(:book_tags, with: &Myapp.BookTag.assoc_changeset/2)
   end
 end

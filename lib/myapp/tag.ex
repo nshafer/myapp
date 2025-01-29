@@ -14,8 +14,8 @@ defmodule Myapp.Tag do
   end
 
   @doc false
-  def changeset(category, attrs) do
-    category
+  def changeset(tag, attrs) do
+    tag
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> unsafe_validate_unique(:name, Myapp.Repo)
