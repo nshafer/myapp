@@ -6,9 +6,9 @@ defmodule Myapp.Tag do
   schema "tags" do
     field :name, :string
 
-    # many_to_many :books, Myapp.Book, join_through: Myapp.BookTag
-    has_many :book_tags, Myapp.BookTag
-    has_many :books, through: [:book_tags, :book]
+    many_to_many :books, Myapp.Book, join_through: Myapp.BookTag
+    # has_many :book_tags, Myapp.BookTag
+    # has_many :books, through: [:book_tags, :book]
 
     timestamps(type: :utc_datetime)
   end

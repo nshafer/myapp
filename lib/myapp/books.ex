@@ -1,4 +1,6 @@
 defmodule Myapp.Books do
+  import Ecto.Query
+
   alias Myapp.Repo
   alias Myapp.Tag
   alias Myapp.Book
@@ -12,6 +14,10 @@ defmodule Myapp.Books do
 
   def get_tag(id) do
     Repo.get(Tag, id)
+  end
+
+  def get_tags(ids) do
+    Repo.all(from t in Tag, where: t.id in ^ids)
   end
 
   def create_tag(attrs \\ %{}) do
