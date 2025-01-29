@@ -6,6 +6,21 @@ defmodule Myapp.BooksTest do
   alias Myapp.Book
   alias Myapp.BooksFixtures
 
+  test "we're able to create a book with tags" do
+    tag = BooksFixtures.tag_fixture()
+
+    # Since `cast_assoc` only works on existing Books, we can't create a Book with tags in one go.
+    {:ok, book} = Books.create_book(%{name: "The Hobbit"})
+
+    # Now create the BookTag association between the book and the tag
+    {:ok, _book_tag} = Books.create_book_tag(book, tag)
+
+    # Reload the book with the `:tags` association
+    book = Books.get_book(book.id) |> Repo.preload(:tags)
+
+    assert [tag] == book.tags
+  end
+
   test "we're able to add a tag to a book" do
     tag = BooksFixtures.tag_fixture()
     book = BooksFixtures.book_fixture()
