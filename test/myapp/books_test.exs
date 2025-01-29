@@ -31,7 +31,6 @@ defmodule Myapp.BooksTest do
     }
 
     assert {:ok, %Book{} = book} = Books.update_book(book, attrs)
-    dbg(book)
 
     assert [tag] == book.tags
   end
