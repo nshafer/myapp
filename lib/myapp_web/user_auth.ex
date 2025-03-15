@@ -98,18 +98,18 @@ defmodule MyappWeb.UserAuth do
   """
   def fetch_current_user(conn, _opts) do
     conn = fetch_cookies(conn, signed: [@remember_me_cookie])
-    {user_token, rm_dt, conn} = ensure_user_token(conn)
+    {user_token, rm_timestamp, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
 
     conn
-    |> maybe_refresh_user_token(user, user_token, rm_dt)
+    |> maybe_refresh_user_token(user, user_token, rm_timestamp)
     |> assign(:current_user, user)
   end
 
-  defp maybe_refresh_user_token(conn, user, user_token, rm_dt) do
-    now = DateTime.utc_now()
+  defp maybe_refresh_user_token(conn, user, user_token, rm_timestamp) do
+    now = DateTime.utc_now() |> DateTime.to_unix()
 
-    if user && user_token && rm_dt && DateTime.diff(now, rm_dt) > @remember_me_refresh_age do
+    if user && user_token && rm_timestamp && now - rm_timestamp > @remember_me_refresh_age do
       token = Accounts.generate_user_session_token(user)
       cookie = {token, DateTime.to_unix(now)}
       Accounts.delete_user_session_token(user_token)
@@ -123,16 +123,16 @@ defmodule MyappWeb.UserAuth do
   end
 
   defp ensure_user_token(conn) do
-    {rm_token, rm_dt} =
+    {rm_token, rm_timestamp} =
       case conn.cookies[@remember_me_cookie] do
         nil -> {nil, nil}
-        {token, timestamp} -> {token, DateTime.from_unix!(timestamp)}
+        {token, timestamp} -> {token, timestamp}
         token -> {token, nil}
       end
 
     cond do
       token = get_session(conn, :user_token) -> {token, nil, conn}
-      rm_token -> {rm_token, rm_dt, put_token_in_session(conn, rm_token)}
+      rm_token -> {rm_token, rm_timestamp, put_token_in_session(conn, rm_token)}
       true -> {nil, nil, conn}
     end
   end
