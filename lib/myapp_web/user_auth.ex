@@ -13,6 +13,10 @@ defmodule MyappWeb.UserAuth do
   @remember_me_cookie "_myapp_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
+  # Refresh the user_token and remember-me cookie every hour, so an active
+  # user will have their login credentials refreshed
+  @remember_me_refresh_age 60 * 60
+
   @doc """
   Logs the user in.
 
@@ -37,7 +41,8 @@ defmodule MyappWeb.UserAuth do
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
-    put_resp_cookie(conn, @remember_me_cookie, token, @remember_me_options)
+    cookie = {token, DateTime.utc_now() |> DateTime.to_unix()}
+    put_resp_cookie(conn, @remember_me_cookie, cookie, @remember_me_options)
   end
 
   defp maybe_write_remember_me_cookie(conn, _token, _params) do
@@ -88,24 +93,50 @@ defmodule MyappWeb.UserAuth do
 
   @doc """
   Authenticates the user by looking into the session
-  and remember me token.
+  and remember me token. This will also refresh the user's
+  token periodically if there is a remember me cookie.
   """
   def fetch_current_user(conn, _opts) do
-    {user_token, conn} = ensure_user_token(conn)
+    conn = fetch_cookies(conn, signed: [@remember_me_cookie])
+    {user_token, rm_dt, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
-    assign(conn, :current_user, user)
+
+    conn
+    |> maybe_refresh_user_token(user, user_token, rm_dt)
+    |> assign(:current_user, user)
+  end
+
+  defp maybe_refresh_user_token(conn, user, user_token, rm_dt) do
+    now = DateTime.utc_now()
+
+    if user && user_token && rm_dt && DateTime.diff(now, rm_dt) > @remember_me_refresh_age do
+      token = Accounts.generate_user_session_token(user)
+      cookie = {token, DateTime.to_unix(now)}
+      Accounts.delete_user_session_token(user_token)
+
+      conn
+      |> put_resp_cookie(@remember_me_cookie, cookie, @remember_me_options)
+      |> put_token_in_session(token)
+    else
+      conn
+    end
   end
 
   defp ensure_user_token(conn) do
-    if token = get_session(conn, :user_token) do
-      {token, conn}
-    else
-      conn = fetch_cookies(conn, signed: [@remember_me_cookie])
+    {rm_token, rm_dt} =
+      case conn.cookies[@remember_me_cookie] do
+        nil -> {nil, nil}
+        {token, timestamp} -> {token, DateTime.from_unix!(timestamp)}
+        token -> {token, nil}
+      end
 
-      if token = conn.cookies[@remember_me_cookie] do
-        {token, put_token_in_session(conn, token)}
+    if token = get_session(conn, :user_token) do
+      {token, rm_dt, conn}
+    else
+      if rm_token do
+        {rm_token, rm_dt, put_token_in_session(conn, rm_token)}
       else
-        {nil, conn}
+        {nil, nil, conn}
       end
     end
   end
