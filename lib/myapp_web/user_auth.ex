@@ -130,14 +130,10 @@ defmodule MyappWeb.UserAuth do
         token -> {token, nil}
       end
 
-    if token = get_session(conn, :user_token) do
-      {token, rm_dt, conn}
-    else
-      if rm_token do
-        {rm_token, rm_dt, put_token_in_session(conn, rm_token)}
-      else
-        {nil, nil, conn}
-      end
+    cond do
+      token = get_session(conn, :user_token) -> {token, nil, conn}
+      rm_token -> {rm_token, rm_dt, put_token_in_session(conn, rm_token)}
+      true -> {nil, nil, conn}
     end
   end
 
