@@ -4,6 +4,7 @@ This is a web application written using the Phoenix web framework.
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
+
 ### Phoenix v1.8 guidelines
 
 - **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
@@ -17,67 +18,34 @@ This is a web application written using the Phoenix web framework.
 - If you override the default input classes (`<.input class="myclass px-2 py-1 rounded-lg">)`) class with your own values, no default classes are inherited, so your
 custom classes must fully style the input
 
-<!-- phoenix-gen-auth-start -->
-## Authentication
+### JS and CSS guidelines
 
-- **Always** handle authentication flow at the router level with proper redirects
-- **Always** be mindful of where to place routes. `phx.gen.auth` creates multiple router plugs and `live_session` scopes:
-  - A plug `:fetch_current_user` that is included in the default browser pipeline
-  - A plug `:require_authenticated_user` that redirects to the log in page when the user is not authenticated
-  - A `live_session :current_user` scope - For routes that need the current user but don't require authentication, similar to `:fetch_current_user`
-  - A `live_session :require_authenticated_user` scope - For routes that require authentication, similar to the plug with the same name
-  - In both cases, a `@current_scope` is assigned to the Plug connection and LiveView socket
-  - A plug `redirect_if_user_is_authenticated` that redirects to a default path in case the user is authenticated - useful for a registration page that should only be shown to unauthenticated users
-- **Always let the user know in which router scopes, `live_session`, and pipeline you are placing the route, AND SAY WHY**
-- `phx.gen.auth` assigns the `current_scope` assign - it **does not assign a `current_user` assign**.
-- To derive/access `current_user`, **always use the `current_scope.user` assign**, never use **`@current_user`** in templates or LiveViews
-- **Never** duplicate `live_session` names. A `live_session :current_user` can only be defined __once__ in the router, so all routes for the `live_session :current_user`  must be grouped in a single block
-- Anytime you hit `current_scope` errors or the logged in session isn't displaying the right content, **always double check the router and ensure you are using the correct plug and `live_session` as described below**
+- **Use Tailwind CSS classes and custom CSS rules** to create polished, responsive, and visually stunning interfaces.
+- Tailwindcss v4 **no longer needs a tailwind.config.js** and uses a new import syntax in `app.css`:
 
-### Routes that require authentication
+      @import "tailwindcss" source(none);
+      @source "../css";
+      @source "../js";
+      @source "../../lib/my_app_web";
 
-LiveViews that require login should **always be placed inside the __existing__ `live_session :require_authenticated_user` block**:
+- **Always use and maintain this import syntax** in the app.css file for projects generated with `phx.new`
+- **Never** use `@apply` when writing raw css
+- **Always** manually write your own tailwind-based components instead of using daisyUI for a unique, world-class design
+- Out of the box **only the app.js and app.css bundles are supported**
+  - You cannot reference an external vendor'd script `src` or link `href` in the layouts
+  - You must import the vendor deps into app.js and app.css to use them
+  - **Never write inline <script>custom js</script> tags within templates**
 
-    scope "/", AppWeb do
-      pipe_through [:browser, :require_authenticated_user]
+### UI/UX & design guidelines
 
-      live_session :require_authenticated_user,
-        on_mount: [{MyappWeb.UserAuth, :require_authenticated}] do
-        # phx.gen.auth generated routes
-        live "/users/settings", UserLive.Settings, :edit
-        live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
-        # our own routes that require logged in user
-        live "/", MyLiveThatRequiresAuth, :index
-      end
-    end
+- **Produce world-class UI designs** with a focus on usability, aesthetics, and modern design principles
+- Implement **subtle micro-interactions** (e.g., button hover effects, and smooth transitions)
+- Ensure **clean typography, spacing, and layout balance** for a refined, premium look
+- Focus on **delightful details** like hover effects, loading states, and smooth page transitions
 
-Controller routes must be placed in a scope that sets the `:require_authenticated_user` plug:
-
-    scope "/", AppWeb do
-      pipe_through [:browser, :require_authenticated_user]
-
-      get "/", MyControllerThatRequiresAuth, :index
-    end
-
-### Routes that work with or without authentication
-
-LiveViews that can work with or without authentication, **always use the __existing__ `:current_user` scope**, ie:
-
-    scope "/", MyAppWeb do
-      pipe_through [:browser]
-
-      live_session :current_user,
-        on_mount: [{MyappWeb.UserAuth, :mount_current_scope}] do
-        # our own routes that work with or without authentication
-        live "/", PublicLive
-      end
-    end
-
-Controllers automatically have the `current_scope` available if they use the `:browser` pipeline.
-
-<!-- phoenix-gen-auth-end -->
 
 <!-- usage-rules-start -->
+
 <!-- phoenix:elixir-start -->
 ## Elixir guidelines
 
@@ -123,6 +91,7 @@ Controllers automatically have the `current_scope` available if they use the `:b
 - To debug test failures, run tests in a specific file with `mix test test/my_test.exs` or run all previously failed tests with `mix test --failed`
 - `mix deps.clean --all` is **almost never needed**. **Avoid** using it unless you have good reason
 <!-- phoenix:elixir-end -->
+
 <!-- phoenix:phoenix-start -->
 ## Phoenix guidelines
 
@@ -140,6 +109,7 @@ Controllers automatically have the `current_scope` available if they use the `:b
 
 - `Phoenix.View` no longer is needed or included with Phoenix, don't use it
 <!-- phoenix:phoenix-end -->
+
 <!-- phoenix:ecto-start -->
 ## Ecto Guidelines
 
@@ -150,6 +120,7 @@ Controllers automatically have the `current_scope` available if they use the `:b
 - You **must** use `Ecto.Changeset.get_field(changeset, :field)` to access changeset fields
 - Fields which are set programatically, such as `user_id`, must not be listed in `cast` calls or similar for security purposes. Instead they must be explicitly set when creating the struct
 <!-- phoenix:ecto-end -->
+
 <!-- phoenix:html-start -->
 ## Phoenix HTML guidelines
 
@@ -228,6 +199,7 @@ Controllers automatically have the `current_scope` available if they use the `:b
         {end}
       </div>
 <!-- phoenix:html-end -->
+
 <!-- phoenix:liveview-start -->
 ## Phoenix LiveView guidelines
 
@@ -358,4 +330,5 @@ And **never** do this:
 - You are FORBIDDEN from accessing the changeset in the template as it will cause errors
 - **Never** use `<.form let={f} ...>` in the template, instead **always use `<.form for={@form} ...>`**, then drive all form references from the form assign as in `@form[:field]`. The UI should **always** be driven by a `to_form/2` assigned in the LiveView module that is derived from a changeset
 <!-- phoenix:liveview-end -->
+
 <!-- usage-rules-end -->

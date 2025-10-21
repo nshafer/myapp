@@ -41,7 +41,7 @@ defmodule Myapp.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:phoenix, "~> 1.8.0"},
+      {:phoenix, "~> 1.8.1"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
@@ -83,7 +83,7 @@ defmodule Myapp.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind myapp", "esbuild myapp"],
+      "assets.build": ["compile", "tailwind myapp", "esbuild myapp"],
       "assets.deploy": [
         "tailwind myapp --minify",
         "esbuild myapp --minify",
