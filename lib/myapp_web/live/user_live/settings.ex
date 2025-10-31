@@ -16,7 +16,7 @@ defmodule MyappWeb.UserLive.Settings do
         </.header>
       </div>
 
-      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
+      <%!-- <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
         <.input
           field={@email_form[:email]}
           type="email"
@@ -27,7 +27,7 @@ defmodule MyappWeb.UserLive.Settings do
         <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
       </.form>
 
-      <div class="divider" />
+      <div class="divider" /> --%>
 
       <.form
         for={@password_form}

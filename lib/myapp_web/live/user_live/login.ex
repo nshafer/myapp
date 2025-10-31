@@ -14,18 +14,18 @@ defmodule MyappWeb.UserLive.Login do
             <:subtitle>
               <%= if @current_scope do %>
                 You need to reauthenticate to perform sensitive actions on your account.
-              <% else %>
+                <%!-- <% else %>
                 Don't have an account? <.link
                   navigate={~p"/users/register"}
                   class="font-semibold text-brand hover:underline"
                   phx-no-format
-                >Sign up</.link> for an account now.
+                >Sign up</.link> for an account now. --%>
               <% end %>
             </:subtitle>
           </.header>
         </div>
 
-        <div :if={local_mail_adapter?()} class="alert alert-info">
+        <%!-- <div :if={local_mail_adapter?()} class="alert alert-info">
           <.icon name="hero-information-circle" class="size-6 shrink-0" />
           <div>
             <p>You are running the local mail adapter.</p>
@@ -33,9 +33,9 @@ defmodule MyappWeb.UserLive.Login do
               To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
             </p>
           </div>
-        </div>
+        </div> --%>
 
-        <.form
+        <%!-- <.form
           :let={f}
           for={@form}
           id="login_form_magic"
@@ -56,7 +56,7 @@ defmodule MyappWeb.UserLive.Login do
           </.button>
         </.form>
 
-        <div class="divider">or</div>
+        <div class="divider">or</div> --%>
 
         <.form
           :let={f}
@@ -125,7 +125,7 @@ defmodule MyappWeb.UserLive.Login do
      |> push_navigate(to: ~p"/users/log-in")}
   end
 
-  defp local_mail_adapter? do
-    Application.get_env(:myapp, Myapp.Mailer)[:adapter] == Swoosh.Adapters.Local
-  end
+  # defp local_mail_adapter? do
+  #   Application.get_env(:myapp, Myapp.Mailer)[:adapter] == Swoosh.Adapters.Local
+  # end
 end
